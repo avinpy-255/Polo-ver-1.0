@@ -1,18 +1,22 @@
 const mongoose = require('mongoose');
-const { boolean } = require('zod');
 
-mongoose.connect('MONGOID')
+mongoose.connect('mongodb+srv://avinashchowdhury81:Avi8420898357@polo-server.yvvel8l.mongodb.net/todos') 
 
-const todoSchema = mongoose.Schema(
-    {
-        title:  String,
-        descrepition: String,
-        completed:  boolean
-    }
-)
+const todoSchema = new mongoose.Schema({
+    title: { 
+        type: String, 
+        required: true, 
+        minlength: 1, 
+        maxlength: 100,
+        trim: true
+    },
+    description: { type: String, trim: true },
+    completed: { type: Boolean, default: false }
+}, { timestamps: true });
 
-const Todo = mongoose.model('Todo', todoSchema)
+const todo = mongoose.model('Todo', todoSchema);
 
-module.exports = (
-    Todo
-)
+module.exports = {
+    todo 
+};
+

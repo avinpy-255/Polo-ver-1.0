@@ -1,62 +1,59 @@
 const express = require('express');
-const { createTodo, updateTodo} = require("./types");
-const { Todo } = require('./db')
+const { createTodo, updateTodo } = require('./types');
+const { todo } = require('./db')
 const app = express()
-
 app.use(express.json())
 
-
-
-
-app.post("/todo", async function(req, res) {
-  const createPayload = req.body;
-  const parsedPayload = createTodo.safeParse(createPayload)
-  if (parsedPayload.success) {
-      res.status(411).json({
-          msg: "Invalid"
-       })
-  
-      return;
+app.post('/todo', async function(req, res) {
+    const createPayload = req.body;
+    const parsedPayload = createTodo.safeParse(createPayload)
+    if(!parsedPayload.success){
+        res.status(411).json({
+            msg: "you're sending wrong input"
+        })
+        return;
     }
-//mongoDb connection 
-   await Todo.create ({
-    title: createPayload.title,
-    description: createPayload.description,
-    completed: false,
-   }
-   )     
-   res.json({
-    msg: 'todo created'
-   })
-})
 
-app.get("todos", async function(req, res){
-  const Todo = await Todo.find({})
-  res.json({
-    Todo
-  })
-})
-
-app.put("/completed", async function(req, res){
-  const updatePayload = req.body;
-  const parsedPayload = updateTodo.safeParse(updatePayload)
-  if (parsedPayload.success) {
-    res.status(411).json({
-        msg: "Invalid"
+    //mongoDB connection
+    await todo.create({
+        title: parsedPayload.data.title,
+        description: parsedPayload.data.description,
+        completed: false
     })
-    return;
-  }
-   
-  await Todo.update({
-    _id: req.body.id
-  }, {
-    completed: true
-  })
-  res.json({
-    msg: 'mark completed'
-  })
 
-    
+    res.json({
+        msg: "todo created"
+    })
 })
 
-app.listen(3000);
+app.get('/todos', async (req, res) => {
+    try {
+        const Todos = await todo.find({}); // Make sure Todo model is imported correctly
+        res.json({ Todos });
+    } catch (error) {
+        console.error('Error fetching todos:', error); // Log the error for debugging
+        res.status(500).json({ msg: 'Internal server error' }); // Send an error response
+    }
+});
+
+app.put('/completed', async function(req, res) {
+    const updatePayload = req.body;
+    const parsedPayload = updateTodo.safeParse(updatePayload)
+    if(!parsedPayload.success){
+        res.status(411).json({
+            msg: "you're sending wrong input"
+        })
+        return;
+    }
+    await todo.update({
+        _id: req.body.id
+    }, {
+        completed: true
+    })
+
+    res.json({
+        msg: "todo marked successfully"
+    })
+})
+
+app.listen(3001)
