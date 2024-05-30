@@ -11,7 +11,7 @@ const todoSchema = new mongoose.Schema({
         trim: true
     },
     description: { type: String, trim: true },
-    completed: { type: Boolean, default: false }
+    completed: { type: Boolean }
 }, { timestamps: true });
 
 const todo = mongoose.model('Todo', todoSchema);
